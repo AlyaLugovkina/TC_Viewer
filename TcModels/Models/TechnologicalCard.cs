@@ -100,9 +100,8 @@ namespace TcModels.Models
         public string?  RepairType { get; set; } // Тип ремонта
         public bool IsCompleted { get; set; } // Наличие ТК
         public bool IsDynamic { get; set; } // Динамическая ТК
-        [NotMapped]
-        [Obsolete]
-		public string? ExecutionSchemeBase64 { get; set; }
+		[NotMapped]
+        public string? ExecutionSchemeBase64 { get; set; }
 
         public long? ExecutionSchemeImageId { get; set; }
         public ImageStorage? ExecutionSchemeImage { get; set; }

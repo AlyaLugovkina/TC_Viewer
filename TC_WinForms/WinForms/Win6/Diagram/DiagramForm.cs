@@ -90,7 +90,7 @@ namespace TC_WinForms.WinForms.Diagram
 
         public async Task SaveChanges()
         {
-            wpfDiagram.Save(saveContext: true);
+            wpfDiagram.Save();
         }
 
 
@@ -100,7 +100,7 @@ namespace TC_WinForms.WinForms.Diagram
         }
         private void DiagramForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            wpfDiagram.Save(saveContext: false);
+            wpfDiagram.SaveOnDispose();
         }
 
         public int GetObjectId()

@@ -112,10 +112,6 @@ public partial class Win7_1_TCs : Form, ILoadDataAsyncForm, IPaginationControl//
 			// Настройка DataGridView после загрузки
 			SetDGVColumnsSettings();
 			DisplayedEntityHelper.SetupDataGridView<DisplayedTechnologicalCard>(dgvMain);
-			if (Program.IsTestMode) // В тестовом режиме показываем Id
-			{
-				dgvMain.Columns[nameof(DisplayedTechnologicalCard.Id)].Visible = true;
-			}
 
 			// Инициализация комбобоксов фильтра
 			SetupNetworkVoltageComboBox();
@@ -212,12 +208,11 @@ public partial class Win7_1_TCs : Form, ILoadDataAsyncForm, IPaginationControl//
 		SetupImplementerLimitedAccess();
 
 		// скрыть фильтры по статусу
-		pnlFilterAdditional.Visible = false;
-		//cbxStatusFilter.Visible = false;
-		//lblStatusFilter.Visible = false;
+		cbxStatusFilter.Visible = false;
+		lblStatusFilter.Visible = false;
 
 		// уменьшить высоту панели фильтров
-		//pnlControls.Height -= 44;
+		pnlControls.Height -= 50;
 	}
 
 	private void SetupImplementerLimitedAccess()

@@ -54,13 +54,30 @@ public partial class Win6_Staff : Form, IViewModeable
 
         dgvMain.CellFormatting += dgvEventService.dgvMain_CellFormatting;
         dgvMain.CellValidating += dgvEventService.dgvMain_CellValidating;
+        dgvMain.CellContentClick += DgvMain_CellContentClick;
 
 		this.FormClosed += (sender, e) =>
 		{
 			_logger.Information("Форма Win6_Staff закрыта.");
 			this.Dispose();
 		};
+
 	}
+
+    private void DgvMain_CellContentClick(object? sender, DataGridViewCellEventArgs e)
+    {
+        if(e.ColumnIndex == 6 && e.RowIndex >= 0)
+        {
+            dgvMain.CommitEdit(DataGridViewDataErrorContexts.Commit);
+
+            var chech = (bool)dgvMain.Rows[e.RowIndex].Cells[6].Value;
+
+            var staffId = (int)dgvMain.Rows[e.RowIndex].Cells[0].Value;
+            var updatedStaff = _tcViewState.TechnologicalCard.Staff_TCs.Where(s => s.IdAuto == staffId).FirstOrDefault();
+
+            updatedStaff.IsInOutlay = chech;
+        }
+    }
 
     private void AccessInitialization()
     {
@@ -73,10 +90,12 @@ public partial class Win6_Staff : Form, IViewModeable
         // make columns editable
         dgvMain.Columns[nameof(DisplayedStaff_TC.Order)].ReadOnly = _tcViewState.IsViewMode;
         dgvMain.Columns[nameof(DisplayedStaff_TC.Symbol)].ReadOnly = _tcViewState.IsViewMode;
+        dgvMain.Columns[nameof(DisplayedStaff_TC.IsInOutlay)].ReadOnly = _tcViewState.IsViewMode;
 
 
         dgvMain.Columns[nameof(DisplayedStaff_TC.Order)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
         dgvMain.Columns[nameof(DisplayedStaff_TC.Symbol)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
+        dgvMain.Columns[nameof(DisplayedStaff_TC.IsInOutlay)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
 
         // update form
         dgvMain.Refresh();
@@ -109,9 +128,17 @@ public partial class Win6_Staff : Form, IViewModeable
     public void AddNewObjects(List<Staff> newObjs)
     {
     _logger.Information("Добавление новых объектов. Количество: {Count}", newObjs.Count);
-        		
+
+        List<Staff> existedStaff = new List<Staff>();
+		
 		foreach (var obj in newObjs)
         {
+            if (_bindingList.Select(c => c.ChildId).Contains(obj.Id))
+            {
+                existedStaff.Add(obj);
+                continue;
+            }
+
             var newStaffTC = CreateNewObject(obj, _bindingList.Count == 0 ? 1 : _bindingList.Select(o => o.Order).Max() + 1);
             var staff = context.Staffs.Where(s => s.Id == newStaffTC.ChildId).First();
 
@@ -132,6 +159,16 @@ public partial class Win6_Staff : Form, IViewModeable
 
         dgvMain.Refresh();
 
+        if (existedStaff.Count > 0)
+        {
+            string elements = "";
+            foreach (var staff in existedStaff)
+            {
+                elements += "Сотрудник: " + staff.Name + " ID: " + staff.Id + ".\n";
+            }
+
+            MessageBox.Show("Часть объектов уже присутствовала в требованиях. Они не были внесены: \n" + elements, "Дублирование элементов", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
         _logger.Information("Добавление новых объектов завершено.");
     }
 
@@ -146,8 +183,8 @@ public partial class Win6_Staff : Form, IViewModeable
             ParentId = dObj.ParentId,
             ChildId = dObj.ChildId,
             Order = dObj.Order,
-            Symbol = dObj.Symbol ?? "-"
-
+            Symbol = dObj.Symbol ?? "-",
+            IsInOutlay = dObj.IsInOutlay,
         };
     }
     private Staff_TC CreateNewObject(Staff obj, int oreder)
@@ -408,7 +445,7 @@ public partial class Win6_Staff : Form, IViewModeable
                 { nameof(ParentId), "ID тех. карты" },
                 { nameof(Order), "№" },
                 { nameof(Symbol), "Обозначение" },
-
+                { nameof(IsInOutlay), "Участвует в подсчете затрат" },
                 { nameof(Name), "Наименование" },
                 { nameof(Type), "Тип (исполнение)" },
                 { nameof(Functions), "Функции" },
@@ -427,6 +464,7 @@ public partial class Win6_Staff : Form, IViewModeable
                 nameof(CombineResponsibility),
                 nameof(Qualification),
                 nameof(Symbol),
+                nameof(IsInOutlay),
                 nameof(ChildId)
             };
         }
@@ -479,7 +517,7 @@ public partial class Win6_Staff : Form, IViewModeable
             ParentId = obj.ParentId;
             Order = obj.Order;
             Symbol = obj.Symbol;
-
+            IsInOutlay = obj.IsInOutlay;
             Name = obj.Child.Name;
             Type = obj.Child.Type;
             Functions = obj.Child.Functions;
@@ -527,6 +565,8 @@ public partial class Win6_Staff : Form, IViewModeable
                 }
             }
         }
+
+        public bool IsInOutlay { get; set; }
 
         public string Name { get; set; }
 

@@ -46,7 +46,7 @@ public class DiagramState
 
     public void HasChanges()
     {
-        WpfMainControl._diagramForm.HasChanges = true;
+        WpfMainControl.diagramForm.HasChanges = true;
     }
 }
 

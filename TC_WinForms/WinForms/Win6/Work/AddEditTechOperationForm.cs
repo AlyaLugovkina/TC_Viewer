@@ -608,7 +608,7 @@ namespace TC_WinForms.WinForms.Work
                 var wor = work.executionWorks.SingleOrDefault(s => s.IdGuid == idd);
                 if (wor != null)
                 {
-                    var oldValue = wor.Value;
+                    var oldValue = wor.Coefficient;
 
                     try
 					{
@@ -624,8 +624,6 @@ namespace TC_WinForms.WinForms.Work
 						var coefficient = wor.Coefficient;
 
 						wor.Value = MathScript.EvaluateCoefficientExpression(coefficient, coefDict, time);
-                        UpdateCoefficient(wor, oldValue);
-
 					}
 					catch (Exception ex)
                     {
@@ -722,11 +720,11 @@ namespace TC_WinForms.WinForms.Work
                    _logger.Information("Удаление ТП c GUID {TechTransitionGuid}", IddGuid);
 
                     TechOperationForm.DeleteTechTransit(IddGuid, work);
-                    UpdateRelatedReplays(FindExecutionWorkById(IddGuid));//Вызывается данная функция так как необходимо пересчитать связанные EW, но коэффициент этого EW не менялся
                     UpdateLocalTP();
 
                     foreach (DataGridViewRow dataGridViewRow in dataGridViewTPLocal.Rows)
                     {
+                        // кажется так лаконичнее, но перед релизом не решаюсь внедрять. Предварительно работает
                         IddGuid = (Guid)dataGridViewRow.Cells[0].Value;
 
                         var bg = work.executionWorks.SingleOrDefault(s => s.IdGuid == IddGuid);
@@ -734,9 +732,8 @@ namespace TC_WinForms.WinForms.Work
                     }
 
                     TechOperationForm.UpdateGrid();
-					// todo: реализовать удаление ТП так, чтобы небыло необходимости в обновлении основной таблицы
-				}
-			}
+                }
+            }
         }
 
         private void DataGridViewTPLocal_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
@@ -2611,7 +2608,7 @@ namespace TC_WinForms.WinForms.Work
                     }
 
 
-                    UpdateCoefficient(executionWorkPovtor);
+                    RecalculateExecutionWorkPovtorValue(executionWorkPovtor);
 
                     // Перерисовать таблицу
                     dataGridViewPovtor.Invalidate();
@@ -2663,8 +2660,8 @@ namespace TC_WinForms.WinForms.Work
                                 existingRepeat.NewPosled = cellValueStr;
                             }
 
-                            //RecalculateExecutionWorkPovtorValue(executionWorkPovtor);
-                            //TechOperationForm.UpdateGrid();
+                            RecalculateExecutionWorkPovtorValue(executionWorkPovtor);
+                            TechOperationForm.UpdateGrid();
                         }
                     }
                     else
@@ -2674,9 +2671,7 @@ namespace TC_WinForms.WinForms.Work
 
                     }
 
-                    UpdateCoefficient(executionWorkPovtor);
-                    TechOperationForm.UpdateGrid();
-                    //UpdateLocalTP();
+                    UpdateLocalTP();
                 }
             }
         }
@@ -2772,10 +2767,7 @@ namespace TC_WinForms.WinForms.Work
 
 				foreach (var repeat in executionWorkPovtor.ExecutionWorkRepeats)
 				{
-                    if (repeat.ChildExecutionWork.Delete)
-                        continue;
-
-                    var value = repeat.ChildExecutionWork.Value;
+					var value = repeat.ChildExecutionWork.Value;
 
 					totalValue += MathScript.EvaluateCoefficientExpression(repeat.NewCoefficient, coefDict, value.ToString());
 				}
@@ -2796,35 +2788,6 @@ namespace TC_WinForms.WinForms.Work
 
 		}
 
-        private void UpdateRelatedReplays(ExecutionWork updatedExecutionWork)
-        {
-            var allExecutionWorks = _tcViewState.GetAllExecutionWorks();
-            var allRepeats = allExecutionWorks.Where(ew => ew.Repeat && ew.ExecutionWorkRepeats.Any(e => e.ChildExecutionWorkId == updatedExecutionWork.Id));
-
-            foreach (var executionWork in allRepeats)
-            {
-                UpdateCoefficient(executionWork);
-            }
-        }
-
-        private void UpdateCoefficient(ExecutionWork editedExecutionWork, double? oldCoefficient = null)
-        {
-            if(editedExecutionWork == null)
-                return;
-
-            if (oldCoefficient != null && oldCoefficient != editedExecutionWork.Value)
-            {
-                UpdateRelatedReplays(editedExecutionWork);
-                return;
-            }
-
-            oldCoefficient = editedExecutionWork.Value;
-            RecalculateExecutionWorkPovtorValue(editedExecutionWork);
-
-            if (oldCoefficient != editedExecutionWork.Value)
-                UpdateRelatedReplays(editedExecutionWork);
-
-        }
         #endregion
 
 

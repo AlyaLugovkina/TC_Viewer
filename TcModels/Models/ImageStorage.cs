@@ -56,7 +56,7 @@ public class ImageStorage
     // Метод для очистки Base64 данных
     public void ClearBase64Image()
     {
-        ImageBase64 = "";
+        ImageBase64 = null;
     }
 }
 

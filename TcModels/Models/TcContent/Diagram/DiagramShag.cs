@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace TcModels.Models.TcContent
+﻿namespace TcModels.Models.TcContent
 {
 	public class DiagramShag
     {
@@ -19,11 +17,8 @@ namespace TcModels.Models.TcContent
 
         public DiagramPosledov DiagramPosledov { get; set; }
         public int DiagramPosledovId { get; set; }
-
-  //      [NotMapped] public string? ParallelIndex { get; set; }
-		//[NotMapped] public string? SequenceIndex { get; set; }
-
-		public int Order { get; set; }
+        
+        public int Order { get; set; }
 
         public string? LeadComment { get; set; } // todo: добавить в БД
         public string? ImplementerComment { get; set; } // todo: добавить в БД

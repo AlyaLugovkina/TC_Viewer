@@ -8,7 +8,6 @@
         public TechOperationWork techOperationWork { get; set; }
         public int technologicalCardId { get; set; }
         public TechnologicalCard technologicalCard { get; set; }
-
         // Временно делаю поле в формате индекс параллельности/Индекс последовательности
         /// <summary>
         /// Записывается в формате: 
