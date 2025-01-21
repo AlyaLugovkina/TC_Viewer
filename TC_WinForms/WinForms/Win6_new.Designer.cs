@@ -56,6 +56,7 @@
             btnShowCoefficients = new Button();
             buttonDiagram = new Button();
             pnlDataViewer = new Panel();
+            btnOutlay = new Button();
             toolStrip1.SuspendLayout();
             pnlControls.SuspendLayout();
             SuspendLayout();
@@ -271,6 +272,7 @@
             // 
             // pnlControls
             // 
+            pnlControls.Controls.Add(btnOutlay);
             pnlControls.Controls.Add(btnShowCoefficients);
             pnlControls.Controls.Add(buttonDiagram);
             pnlControls.Controls.Add(btnShowWorkSteps);
@@ -283,13 +285,13 @@
             pnlControls.Location = new Point(0, 25);
             pnlControls.Margin = new Padding(3, 2, 3, 2);
             pnlControls.Name = "pnlControls";
-            pnlControls.Size = new Size(206, 381);
+            pnlControls.Size = new Size(206, 439);
             pnlControls.TabIndex = 34;
             // 
             // btnShowCoefficients
             // 
             btnShowCoefficients.Font = new Font("Segoe UI", 9F);
-            btnShowCoefficients.Location = new Point(4, 321);
+            btnShowCoefficients.Location = new Point(4, 367);
             btnShowCoefficients.Margin = new Padding(3, 2, 3, 2);
             btnShowCoefficients.Name = "btnShowCoefficients";
             btnShowCoefficients.Size = new Size(196, 42);
@@ -302,7 +304,7 @@
             // buttonDiagram
             // 
             buttonDiagram.Font = new Font("Segoe UI", 9F);
-            buttonDiagram.Location = new Point(4, 275);
+            buttonDiagram.Location = new Point(4, 321);
             buttonDiagram.Margin = new Padding(3, 2, 3, 2);
             buttonDiagram.Name = "buttonDiagram";
             buttonDiagram.Size = new Size(196, 42);
@@ -317,14 +319,26 @@
             pnlDataViewer.Location = new Point(206, 25);
             pnlDataViewer.Margin = new Padding(3, 2, 3, 2);
             pnlDataViewer.Name = "pnlDataViewer";
-            pnlDataViewer.Size = new Size(987, 381);
+            pnlDataViewer.Size = new Size(987, 439);
             pnlDataViewer.TabIndex = 35;
+            // 
+            // btnOutlay
+            // 
+            btnOutlay.Font = new Font("Segoe UI", 9F);
+            btnOutlay.Location = new Point(5, 275);
+            btnOutlay.Margin = new Padding(3, 2, 3, 2);
+            btnOutlay.Name = "btnOutlay";
+            btnOutlay.Size = new Size(196, 42);
+            btnOutlay.TabIndex = 35;
+            btnOutlay.Text = "Таблица затрат";
+            btnOutlay.UseVisualStyleBackColor = true;
+            btnOutlay.Click += button1_Click;
             // 
             // Win6_new
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1193, 406);
+            ClientSize = new Size(1193, 464);
             Controls.Add(pnlDataViewer);
             Controls.Add(pnlControls);
             Controls.Add(toolStrip1);
@@ -372,5 +386,6 @@
 		private ToolStripButton toolStripShowCoefficients;
 		private ToolStripMenuItem ChangeIsDynamicToolStripMenuItem;
 		private ToolStripMenuItem действияToolStripMenuItem;
-	}
+        private Button btnOutlay;
+    }
 }
