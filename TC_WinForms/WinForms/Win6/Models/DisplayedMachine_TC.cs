@@ -17,7 +17,7 @@ public class DisplayedMachine_TC : BaseDisplayedEntity
 
 		Name = obj.Child.Name;
 		Type = obj.Child.Type;
-        OutlayCount = obj.OutlayCount;
+        OutlayCount = obj.IsInOutlayCount;
 
         Unit = obj.Child.Unit;
 		Quantity = obj.Quantity;

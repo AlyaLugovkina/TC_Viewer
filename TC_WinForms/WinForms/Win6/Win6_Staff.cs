@@ -75,7 +75,7 @@ public partial class Win6_Staff : Form, IViewModeable
             var staffId = (int)dgvMain.Rows[e.RowIndex].Cells[0].Value;
             var updatedStaff = _tcViewState.TechnologicalCard.Staff_TCs.Where(s => s.IdAuto == staffId).FirstOrDefault();
 
-            updatedStaff.OutlayCount = chech;
+            updatedStaff.IsInOutlayCount = chech;
         }
     }
 
@@ -184,7 +184,7 @@ public partial class Win6_Staff : Form, IViewModeable
             ChildId = dObj.ChildId,
             Order = dObj.Order,
             Symbol = dObj.Symbol ?? "-",
-            OutlayCount = dObj.OutlayCount,
+            IsInOutlayCount = dObj.OutlayCount,
         };
     }
     private Staff_TC CreateNewObject(Staff obj, int oreder)
@@ -517,7 +517,7 @@ public partial class Win6_Staff : Form, IViewModeable
             ParentId = obj.ParentId;
             Order = obj.Order;
             Symbol = obj.Symbol;
-            OutlayCount = obj.OutlayCount;
+            OutlayCount = obj.IsInOutlayCount;
             Name = obj.Child.Name;
             Type = obj.Child.Type;
             Functions = obj.Child.Functions;

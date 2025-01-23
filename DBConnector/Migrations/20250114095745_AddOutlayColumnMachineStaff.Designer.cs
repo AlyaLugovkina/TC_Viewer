@@ -12,7 +12,7 @@ using TcDbConnector;
 namespace TcDbConnector.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20250114095745_OutlayColumnStaff")]
+    [Migration("20250114095745_AddOutlayColumnMachineStaff")]
     partial class OutlayColumnStaff
     {
         /// <inheritdoc />
@@ -288,6 +288,9 @@ namespace TcDbConnector.Migrations
                         .HasColumnType("double")
                         .HasDefaultValue(0.0);
 
+                    b.Property<bool>("IsInOutlayCount")
+                        .HasColumnType("tinyint(1)");
+
                     b.HasKey("ParentId", "ChildId");
 
                     b.HasIndex("ChildId");
@@ -365,7 +368,7 @@ namespace TcDbConnector.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(0);
 
-                    b.Property<bool>("OutlayCount")
+                    b.Property<bool>("IsInOutlayCount")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<int>("ParentId")

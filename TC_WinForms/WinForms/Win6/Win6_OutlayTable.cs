@@ -39,14 +39,14 @@ namespace TC_WinForms.WinForms.Win6
 
             InitializeComponent();
         }
-        private void CalculateOutlay()
+        private void LoadCalculatedOutlayData() //Метод загрузки рассчитаных данных затрат в таблицу dgvMain
         {
-            var bindingList = new BindingList<DisplayedOutlay>();
-
-            foreach (var outlay in _calculateOutlayService.GetOutlayList(_tcViewState))
-            {
-                bindingList.Add(new DisplayedOutlay(outlay));
-            }
+            var bindingList = new BindingList<DisplayedOutlay> //запрашиваем список outlay и сразу преобразовываем его в список DisplayedOutlay
+                (
+                    _calculateOutlayService.GetOutlayList(_tcViewState)
+                                           .Select(outlay => new DisplayedOutlay(outlay))
+                                           .ToList()
+                );
             dgvMain.DataSource = bindingList;
         }
 
@@ -57,12 +57,13 @@ namespace TC_WinForms.WinForms.Win6
             Log.Information("Загрузка формы Win6_OutlayTable");
 
             SetDGVColumnsSettings();
-            CalculateOutlay();
+            LoadCalculatedOutlayData();
 
             DisplayedEntityHelper.SetupDataGridView<DisplayedOutlay>(dgvMain);
 
             this.Enabled = true;
-            
+
+            Log.Information("Форма Win6_OutlayTable загружена");
         }
         void SetDGVColumnsSettings()
         {
@@ -189,12 +190,7 @@ namespace TC_WinForms.WinForms.Win6
                 OutlayUnitType = obj.OutlayUnitType.GetDescription();
                 OutlayValue = obj.OutlayValue;
             }
-        }
+        }//Класс создан для удобного форматирования и объявления таблицы dgvMain с помощью функции SetupDataGridView
 
-        private  void btnCalculateOutlay_Click_1(object sender, EventArgs e)
-        {
-            CalculateOutlay();
-        }
-       
     }
 }

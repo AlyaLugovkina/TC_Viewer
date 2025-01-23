@@ -49,7 +49,7 @@ namespace TcModels.Models.IntermediateTables
         public TechnologicalCard? Parent { get; set; }
 
         public int Order { get; set; }
-        public bool OutlayCount { get; set; }
+        public bool IsInOutlayCount { get; set; }
 
         public string Symbol { get; set; }
 
@@ -60,7 +60,7 @@ namespace TcModels.Models.IntermediateTables
             {
                 Symbol = sourceCard.Symbol;
                 Order = sourceCard.Order;
-                OutlayCount = sourceCard.OutlayCount;
+                IsInOutlayCount = sourceCard.IsInOutlayCount;
             }
         }
         public override string ToString()

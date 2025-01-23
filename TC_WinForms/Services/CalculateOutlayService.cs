@@ -1,10 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
 using TC_WinForms.WinForms.Win6.Models;
 using TcDbConnector;
 using TcModels.Models.TcContent;
@@ -25,12 +19,23 @@ namespace TC_WinForms.Services
 
         public CalculateOutlayService() { }
 
-        public List<Outlay> GetOutlayList(TcViewState tcViewStat)
+        /// <summary>
+        /// Рассчитывает затраты на основе актуальных данных из Технологической карты
+        /// </summary>
+        /// <param name="tcViewState">Объект класса TcViewState, хранящий в себе актуальыне данные ТК, которые могут быть не сохранены пользователем.</param>
+        /// <returns>
+        /// Список затрат типа <typeparamref name="Outlay"/>.
+        /// </returns>
+        public List<Outlay> GetOutlayList(TcViewState tcViewState)
         {
-            CalculateTechCardOutlay(tcViewStat);
+            CalculateTechCardOutlay(tcViewState);
             return _outlayList;
         }
 
+        /// <summary>
+        /// Рассчитывает затраты на основе актуальных данных из Технологической карты и сохраняет в БД новые данные, если такие имеются.
+        /// </summary>
+        /// <param name="tcViewState">Объект класса TcViewState, хранящий в себе актуальыне данные ТК, которые могут быть не сохранены пользователем.</param>
         public void TryRewriteOutlay(TcViewState tcViewState)
         {
             CalculateTechCardOutlay(tcViewState);
@@ -55,20 +60,24 @@ namespace TC_WinForms.Services
 
                 var existedComponent = existedOutlay.Where(s => s.Type == OutlayType.Components).First();
                 var newComponent = _outlayList.Where(s => s.Type == OutlayType.Components).First();
-                if(newComponent.OutlayValue != existedComponent.OutlayValue)
-                    UpdateOutlayRecord(existedComponent, newComponent, context);
+                TryUpdateOutlayRecord(existedComponent, newComponent, context);
 
                 var existedSummary = existedOutlay.Where(s => s.Type == OutlayType.SummaryTimeOutlay).First();
                 var newSummary = _outlayList.Where(s => s.Type == OutlayType.SummaryTimeOutlay).First();
-                if (newSummary.OutlayValue != existedSummary.OutlayValue)
-                    UpdateOutlayRecord(existedSummary, newSummary, context);
+                TryUpdateOutlayRecord(existedSummary, newSummary, context);
 
                 context.SaveChanges();
             }
 
         }
 
-        private void UpdateOutlayRecord(Outlay oldRecord, Outlay newRecord, MyDbContext context)
+        /// <summary>
+        ///  Если актуальные данные и данные из БД отличаются - обновляет данные о затратах в БД
+        /// </summary>
+        /// <param name="oldRecord">Объект класса Outlay, запись о затратах, полученная из базы данных.</param>
+        /// <param name="newRecord">Объект класса Outlay, актуальная запись о затратах, полученная после пересчета текущих данных ТК (не сохраненных).</param>
+        /// <param name="context">Объект класса MyDbContext, текущий контекст для работы с базой данных, с помощью которого вносятся изменения в запись.</param>
+        private void TryUpdateOutlayRecord(Outlay oldRecord, Outlay newRecord, MyDbContext context)
         {
             if (newRecord.OutlayValue != oldRecord.OutlayValue)
             {
@@ -77,10 +86,23 @@ namespace TC_WinForms.Services
             }
         }
 
+        /// <summary>
+        ///  Сравнивает данные двух списков - актуальных затрат и затрат из БД и вносит изменения: удаляет неактуальные записи, добавляет новые и обновляет несовпадающие.
+        /// </summary>
+        /// <param name="oldListData">Список затрат полученный из базы данных.</param>
+        /// <param name="newListData">Список затрат полученный после пересчета текущих данных ТК (не сохраненных).</param>
+        /// <param name="context">Объект класса MyDbContext, текущий контекст для работы с базой данных, с помощью которого вносятся изменения в запись.</param>
         private void UpdateGroup(List<Outlay> oldListData, List<Outlay> newListData, MyDbContext context)
         {
-            if (newListData == null)
+            if (newListData == null && oldListData != null)
+            {
+                context.OutlaysTable.RemoveRange(oldListData);
                 return;
+            }
+            else if(newListData == null)
+            {
+                return;
+            }
 
             if (oldListData == null)
             {
@@ -94,7 +116,6 @@ namespace TC_WinForms.Services
                 if (deleteFromOutlay)
                 {
                     context.OutlaysTable.Remove(item);
-                    continue;
                 }
             }
 
@@ -108,14 +129,17 @@ namespace TC_WinForms.Services
                 }
 
                 var updatedOutlay = oldListData.Where(s => s.Name.Equals(item.Name)).FirstOrDefault();
-                if (updatedOutlay != null && updatedOutlay.OutlayValue != item.OutlayValue)
+                if (updatedOutlay != null)
                 {
-                    UpdateOutlayRecord(updatedOutlay, item, context);
+                    TryUpdateOutlayRecord(updatedOutlay, item, context);
                 }
 
             }
         }
 
+        /// <summary>
+        ///  Добавляет новую запись о затратах на основе данных редактируемой ТК в актуальный список затрат.
+        /// </summary>
         private void AddNewOutlay(int tcId,OutlayType outlayType, UnitType unitType, double OutlayValue, string name = null)
         {
             var newOutlay = new Outlay
@@ -130,6 +154,10 @@ namespace TC_WinForms.Services
             _outlayList.Add(newOutlay);
         }
 
+        /// <summary>
+        /// Рассчитывает затраты на основе актуальных данных из Технологической карты.
+        /// </summary>
+        /// <param name="tcViewState">Объект класса TcViewState, хранящий в себе актуальыне данные ТК, которые могут быть не сохранены пользователем.</param>
         private void CalculateTechCardOutlay(TcViewState tcViewState)
         {
             _outlayList.Clear();
@@ -139,10 +167,14 @@ namespace TC_WinForms.Services
             CalculateExecutionWorksOutlay(tcViewState);
         }
 
+        /// <summary>
+        /// Рассчитывает затраты персонала на основе актуальных данных из Технологической карты.
+        /// </summary>
+        /// <param name="tcViewState">Объект класса TcViewState, хранящий в себе актуальыне данные ТК, которые могут быть не сохранены пользователем.</param>
         private void CalculateStaffOutlay(TcViewState tcViewState)
         {
             double staffOutlay = 0;
-            foreach (var staff in tcViewState.TechnologicalCard.Staff_TCs.Where(s =>  s.OutlayCount).ToList())
+            foreach (var staff in tcViewState.TechnologicalCard.Staff_TCs.Where(s =>  s.IsInOutlayCount).ToList())
             {
                 foreach (var ew in staff.ExecutionWorks)
                 {
@@ -154,6 +186,11 @@ namespace TC_WinForms.Services
                 staffOutlay = 0;
             }
         }
+
+        /// <summary>
+        /// Рассчитывает затраты материалов и компонентов на основе актуальных данных из Технологической карты.
+        /// </summary>
+        /// <param name="tcViewState">Объект класса TcViewState, хранящий в себе актуальыне данные ТК, которые могут быть не сохранены пользователем.</param>
         private void CalculateComponentOutlay(TcViewState tcViewState)
         {
             double componentOutlay = 0;
@@ -166,10 +203,15 @@ namespace TC_WinForms.Services
 
             AddNewOutlay(tcViewState.TechnologicalCard.Id, OutlayType.Components, UnitType.Сurrency, componentOutlay);
         }
+
+        /// <summary>
+        /// Рассчитывает затраты механизмов на основе актуальных данных из Технологической карты.
+        /// </summary>
+        /// <param name="tcViewState">Объект класса TcViewState, хранящий в себе актуальыне данные ТК, которые могут быть не сохранены пользователем.</param>
         private void CalculateMachineOutlay(TcViewState tcViewState)
         {
             double machineOutlay = 0;
-            foreach (var machine in tcViewState.TechnologicalCard.Machine_TCs.Where(s => s.OutlayCount).ToList())
+            foreach (var machine in tcViewState.TechnologicalCard.Machine_TCs.Where(s => s.IsInOutlayCount).ToList())
             {
                 machineOutlay = machine.ExecutionWorks == null|| machine.ExecutionWorks.Count == 0
                     ? 1
@@ -182,6 +224,11 @@ namespace TC_WinForms.Services
                 machineOutlay = 0;
             }
         }
+
+        /// <summary>
+        /// Рассчитывает суммарные затраты по времени на основе актуальных данных из Технологической карты.
+        /// </summary>
+        /// <param name="tcViewState">Объект класса TcViewState, хранящий в себе актуальыне данные ТК, которые могут быть не сохранены пользователем.</param>
         private void CalculateExecutionWorksOutlay(TcViewState tcViewState)
         {
             double etapOutlay = 0;
