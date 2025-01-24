@@ -4,10 +4,11 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TcModels.Models.Interfaces;
 
 namespace TcModels.Models.TcContent
 {
-    public class Outlay
+    public class Outlay: INameable
     {
         public enum OutlayType
         {
@@ -31,7 +32,7 @@ namespace TcModels.Models.TcContent
             Hours,
         }
 
-        public int ID { get; set; }
+        public int Id { get; set; }
         public int TcID {  get; set; }
         public OutlayType Type { get; set; }
         public  UnitType OutlayUnitType { get; set; }
