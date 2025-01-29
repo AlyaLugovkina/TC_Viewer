@@ -49,6 +49,8 @@ namespace TcModels.Models.IntermediateTables
         public TechnologicalCard? Parent { get; set; }
 
         public int Order { get; set; }
+        public bool IsInOutlay { get; set; }
+
         public string Symbol { get; set; }
 
         public List<ExecutionWork> ExecutionWorks { get; set; } = new List<ExecutionWork>(); 
@@ -58,6 +60,7 @@ namespace TcModels.Models.IntermediateTables
             {
                 Symbol = sourceCard.Symbol;
                 Order = sourceCard.Order;
+                IsInOutlay = sourceCard.IsInOutlay;
             }
         }
         public override string ToString()
