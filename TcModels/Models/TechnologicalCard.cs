@@ -32,6 +32,18 @@ namespace TcModels.Models
             Completed
         }
 
+        public enum TechnologicalCardUnit
+        {
+            [Description("Шт.")] // ТК создана, но не заполнена
+            Pieces,
+
+            [Description("100 м")] //ТК заполнена и готова к проверке руководителя
+            OneHundredM,
+
+            [Description("500 м")] // ТК просмотрена руководителем, но требует доработки
+            FiveHundredM,
+        }
+
         public static Dictionary<string, string> GetPropertiesNames()
         {
             return new Dictionary<string, string>
@@ -48,7 +60,9 @@ namespace TcModels.Models
                 { nameof(FinalProduct), "Конечный продукт" },
                 { nameof(Applicability), "Применимость техкарты" },
                 { nameof(Note), "Примечания" },
-                { nameof(IsCompleted), "Наличие" }
+                { nameof(IsCompleted), "Наличие" },
+                { nameof(OutlayUnit), "Составляющие затрат" }
+
             };
         }
         public static Dictionary<string, int> GetPropertiesOrder()
@@ -76,7 +90,7 @@ namespace TcModels.Models
                 { nameof(DamageType), -1 },
                 { nameof(RepairType), -1},
                 { nameof(Data), -1 },
-
+                { nameof(OutlayUnit), -1 },
             };
         }
 
@@ -86,6 +100,7 @@ namespace TcModels.Models
         public string? Name { get; set; }
         public string? Description { get; set; }
         public string Version { get; set; } = "0.0.0.0";
+        public TechnologicalCardUnit OutlayUnit { get; set; } = TechnologicalCardUnit.Pieces;
 
         public string Type { get; set; } // Тип карты
         public float NetworkVoltage { get; set; } // Сеть, кВ
@@ -211,7 +226,7 @@ namespace TcModels.Models
                 Data = sourceCard.Data;
                 TechnologicalProcess = sourceCard.TechnologicalProcess;
                 Status = sourceCard.Status;
-
+                OutlayUnit = sourceCard.OutlayUnit;
                 ExecutionSchemeImageId = sourceCard.ExecutionSchemeImageId;
             }
         }

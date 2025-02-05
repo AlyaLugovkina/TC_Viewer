@@ -79,7 +79,7 @@ namespace ExcelParsing.DataProcessing
             }
         }
 
-        public void ExportTCtoFile(string fileFolderPath, TechnologicalCard tc, List<Outlay> outlays)
+        public void ExportTCtoFile(string fileFolderPath, TechnologicalCard tc, List<Outlay> outlays = null)
         {
             string article = tc.Article;
             string filePath = fileFolderPath;// + article + ".xlsx";
@@ -110,7 +110,8 @@ namespace ExcelParsing.DataProcessing
             var headerWorkStepsRow = lastRow;
             lastRow = AddTechOperationDataToExcel(tc.TechOperationWorks.OrderBy(x => x.Order).ToList(), machine_TCs, sheet, lastRow + 1);
 
-            lastRow = AddOutlayDataToExel(sheet, lastRow + 1, outlays);
+            if(outlays != null)
+                lastRow = AddOutlayDataToExel(sheet, lastRow + 1, outlays);
 
             // Скрытие столбцов механизмов в Таблице хода работ
             HideMachineColumns(sheet);
