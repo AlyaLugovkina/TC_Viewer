@@ -7,6 +7,7 @@ using TC_WinForms.Extensions;
 using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
 using TC_WinForms.WinForms.Diagram;
+using TC_WinForms.WinForms.Win6;
 using TC_WinForms.WinForms.Win6.Models;
 using TC_WinForms.WinForms.Work;
 using TcDbConnector;
@@ -19,11 +20,14 @@ using static TcModels.Models.TechnologicalCard;
 
 namespace TC_WinForms.WinForms
 {
+
 	public partial class Win6_new : Form, IViewModeable, IFormWithObjectId
 	{
 		private readonly ILogger _logger;
 		private TcViewState tcViewState;
 		private ConcurrencyBlockService<TechnologicalCard> concurrencyBlockServise;
+    private OutlayService calculateOutlayService = new OutlayService();
+
 		//private static bool _isViewMode = true;
 		//private static bool _isCommentViewMode = false;
 		private static bool _isMachineCollumnViewMode = true;
@@ -494,7 +498,7 @@ namespace TC_WinForms.WinForms
 			{
 				// Блокировка формы при переключении
 				this.Enabled = false;
-				bool isSwitchingFromOrToWorkStep = _activeModelType == EModelType.WorkStep || modelType == EModelType.WorkStep || _activeModelType == EModelType.Diagram || modelType == EModelType.Diagram;
+				bool isSwitchingFromOrToWorkStep = _activeModelType == EModelType.WorkStep || modelType == EModelType.WorkStep || _activeModelType == EModelType.Diagram || modelType == EModelType.Diagram || _activeModelType == EModelType.Outlay || modelType == EModelType.Outlay;
 
 				if (isSwitchingFromOrToWorkStep)
 				{
@@ -631,6 +635,8 @@ namespace TC_WinForms.WinForms
 																		  //    return new Win7_1_TCs_Window(_tcId, win6Format: true);
 				case EModelType.Coefficient:
 					return new CoefficientEditorForm(_tcId, tcViewState, context);
+        case EModelType.Outlay:
+          return new Win6_OutlayTable(tcViewState, calculateOutlayService);// _isViewMode);
 
 				default:
 					throw new ArgumentOutOfRangeException(nameof(modelType), "Неизвестный тип модели");
@@ -739,7 +745,8 @@ namespace TC_WinForms.WinForms
 			try
 			{
 				SaveTehCartaChanges();
-
+        calculateOutlayService.UpdateOutlay(tcViewState);
+        
 				foreach (var form in _formsCache.Values)
 				{
 					// is form is ISaveEventForm
@@ -1300,12 +1307,37 @@ namespace TC_WinForms.WinForms
 				}
 			}
 		}
+    
+    private void toolStripOutlayTable_Click(object sender, EventArgs e)
+    {
+        _logger.Information("Вызвано открытие таблицы затрат");
 
+        var openedForm = CheckOpenFormService.FindOpenedForm<Win6_OutlayTable>();
+
+        if (openedForm != null)
+        {
+            openedForm.BringToFront();
+            return;
+        }
+        else
+        {
+            var outlayForm = new Win6_OutlayTable(tcViewState, calculateOutlayService);
+            outlayForm.Show();
+        }
+    }
+
+    private async void button1_Click(object sender, EventArgs e)
+    {
+        LogUserAction("Отображение таблицы затрат");
+        await ShowForm(EModelType.Outlay);
+    }
+    
 		private void UpdateIsDynamicButtonText()
 		{
 			ChangeIsDynamicToolStripMenuItem.Text = _tc.IsDynamic ? "Сделать не динамической" : "Сделать динамической";
 		}
 	}
+
 
 }
 
