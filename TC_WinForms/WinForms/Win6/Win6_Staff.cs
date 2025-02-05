@@ -75,7 +75,7 @@ public partial class Win6_Staff : Form, IViewModeable
             var staffId = (int)dgvMain.Rows[e.RowIndex].Cells[0].Value;
             var updatedStaff = _tcViewState.TechnologicalCard.Staff_TCs.Where(s => s.IdAuto == staffId).FirstOrDefault();
 
-            updatedStaff.IsInOutlayCount = chech;
+            updatedStaff.IsInOutlay = chech;
         }
     }
 
@@ -90,12 +90,12 @@ public partial class Win6_Staff : Form, IViewModeable
         // make columns editable
         dgvMain.Columns[nameof(DisplayedStaff_TC.Order)].ReadOnly = _tcViewState.IsViewMode;
         dgvMain.Columns[nameof(DisplayedStaff_TC.Symbol)].ReadOnly = _tcViewState.IsViewMode;
-        dgvMain.Columns[nameof(DisplayedStaff_TC.OutlayCount)].ReadOnly = _tcViewState.IsViewMode;
+        dgvMain.Columns[nameof(DisplayedStaff_TC.IsInOutlay)].ReadOnly = _tcViewState.IsViewMode;
 
 
         dgvMain.Columns[nameof(DisplayedStaff_TC.Order)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
         dgvMain.Columns[nameof(DisplayedStaff_TC.Symbol)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
-        dgvMain.Columns[nameof(DisplayedStaff_TC.OutlayCount)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
+        dgvMain.Columns[nameof(DisplayedStaff_TC.IsInOutlay)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
 
         // update form
         dgvMain.Refresh();
@@ -184,7 +184,7 @@ public partial class Win6_Staff : Form, IViewModeable
             ChildId = dObj.ChildId,
             Order = dObj.Order,
             Symbol = dObj.Symbol ?? "-",
-            IsInOutlayCount = dObj.OutlayCount,
+            IsInOutlay = dObj.IsInOutlay,
         };
     }
     private Staff_TC CreateNewObject(Staff obj, int oreder)
@@ -445,7 +445,7 @@ public partial class Win6_Staff : Form, IViewModeable
                 { nameof(ParentId), "ID тех. карты" },
                 { nameof(Order), "№" },
                 { nameof(Symbol), "Обозначение" },
-                { nameof(OutlayCount), "Участвует в подсчете затрат" },
+                { nameof(IsInOutlay), "Участвует в подсчете затрат" },
                 { nameof(Name), "Наименование" },
                 { nameof(Type), "Тип (исполнение)" },
                 { nameof(Functions), "Функции" },
@@ -464,7 +464,7 @@ public partial class Win6_Staff : Form, IViewModeable
                 nameof(CombineResponsibility),
                 nameof(Qualification),
                 nameof(Symbol),
-                nameof(OutlayCount),
+                nameof(IsInOutlay),
                 nameof(ChildId)
             };
         }
@@ -517,7 +517,7 @@ public partial class Win6_Staff : Form, IViewModeable
             ParentId = obj.ParentId;
             Order = obj.Order;
             Symbol = obj.Symbol;
-            OutlayCount = obj.IsInOutlayCount;
+            IsInOutlay = obj.IsInOutlay;
             Name = obj.Child.Name;
             Type = obj.Child.Type;
             Functions = obj.Child.Functions;
@@ -566,7 +566,7 @@ public partial class Win6_Staff : Form, IViewModeable
             }
         }
 
-        public bool OutlayCount { get; set; }
+        public bool IsInOutlay { get; set; }
 
         public string Name { get; set; }
 

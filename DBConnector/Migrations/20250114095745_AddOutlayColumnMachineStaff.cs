@@ -11,14 +11,14 @@ namespace TcDbConnector.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<bool>(
-                name: "IsInOutlayCount",
+                name: "IsInOutlay",
                 table: "Staff_TC",
                 type: "tinyint(1)",
                 nullable: false,
                 defaultValue: false);
 
             migrationBuilder.AddColumn<bool>(
-                name: "IsInOutlayCount",
+                name: "IsInOutlay",
                 table: "Machine_TC",
                 type: "tinyint(1)",
                 nullable: false,
@@ -29,11 +29,11 @@ namespace TcDbConnector.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "IsInOutlayCount",
+                name: "IsInOutlay",
                 table: "Staff_TC");
 
             migrationBuilder.DropColumn(
-                name: "IsInOutlayCount",
+                name: "IsInOutlay",
                 table: "Machine_TC");
         }
     }

@@ -23,13 +23,13 @@ namespace TC_WinForms.WinForms.Win6
             Etap,
             ParallelIndex,
         }
-        private CalculateOutlayService _calculateOutlayService;
+        private OutlayService _calculateOutlayService;
         public bool _isDataLoaded = false;
 
         private TcViewState _tcViewState;
         private int _tcId;
 
-        public Win6_OutlayTable(TcViewState tcViewState, CalculateOutlayService calculateOutlayService)
+        public Win6_OutlayTable(TcViewState tcViewState, OutlayService calculateOutlayService)
         {
             _tcId = tcViewState.TechnologicalCard.Id;
             _tcViewState = tcViewState;
@@ -39,7 +39,7 @@ namespace TC_WinForms.WinForms.Win6
 
             InitializeComponent();
         }
-        private void LoadCalculatedOutlayData() //Метод загрузки рассчитаных данных затрат в таблицу dgvMain
+        private void LoadOutlayData() //Метод загрузки рассчитаных данных затрат в таблицу dgvMain
         {
             var bindingList = new BindingList<DisplayedOutlay> //запрашиваем список outlay и сразу преобразовываем его в список DisplayedOutlay
                 (
@@ -57,7 +57,7 @@ namespace TC_WinForms.WinForms.Win6
             Log.Information("Загрузка формы Win6_OutlayTable");
 
             SetDGVColumnsSettings();
-            LoadCalculatedOutlayData();
+            LoadOutlayData();
 
             DisplayedEntityHelper.SetupDataGridView<DisplayedOutlay>(dgvMain);
 

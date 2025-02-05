@@ -25,7 +25,7 @@ namespace TC_WinForms.WinForms
         private readonly ILogger _logger;
         private TcViewState tcViewState;
         private ConcurrencyBlockService<TechnologicalCard> concurrencyBlockServise;
-        private CalculateOutlayService calculateOutlayService = new CalculateOutlayService();
+        private OutlayService calculateOutlayService = new OutlayService();
 
         //private static bool _isViewMode = true;
         //private static bool _isCommentViewMode = false;
@@ -741,7 +741,7 @@ namespace TC_WinForms.WinForms
             try
             {
                 SaveTehCartaChanges();
-                calculateOutlayService.TryRewriteOutlay(tcViewState);
+                calculateOutlayService.UpdateOutlay(tcViewState);
 
                 foreach (var form in _formsCache.Values)
                 {
