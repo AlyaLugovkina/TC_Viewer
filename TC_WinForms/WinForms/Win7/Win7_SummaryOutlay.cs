@@ -1,16 +1,21 @@
-﻿using System.Data;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Data;
+using System.DirectoryServices.ActiveDirectory;
+using System.Reflection.PortableExecutable;
+using System.Windows.Forms;
 using TC_WinForms.DataProcessing;
 using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
 using TC_WinForms.WinForms.Win7.Work;
 using TC_WinForms.WinForms.Work;
+using TcDbConnector;
 using TcModels.Models.TcContent;
 using static TC_WinForms.DataProcessing.AuthorizationService;
 using static TcModels.Models.TcContent.Outlay;
 
 namespace TC_WinForms.WinForms.Win7
 {
-    public partial class Win7_SummaryOutlay : Form, ILoadDataAsyncForm, IPaginationControl,
+    public partial class Win7_SummaryOutlay : Form, ILoadDataAsyncForm //IPaginationControl,
     {
         private readonly User.Role _accessLevel;
         private readonly int _minRowHeight = 20;
@@ -20,7 +25,7 @@ namespace TC_WinForms.WinForms.Win7
         private List<SummaryOutlayDataGridItem> _displayedObjects = new();
         private List<Outlay> _displayedObject = new();
 
-        private List<SummaryOutlayDataGridItem> SummaryOutlayDataGridItem = new List<SummaryOutlayDataGridItem>();
+        private List<SummaryOutlayDataGridItem> SummaryOutlayDataGridItems = new List<SummaryOutlayDataGridItem>();
 
         public bool _isDataLoaded = false;
 
@@ -54,16 +59,21 @@ namespace TC_WinForms.WinForms.Win7
                 await LoadDataAsync();
 
             InitializeDataGrid();
+            PopulateDataGrid();
+
+
+            Enabled = true;
+            dgvMain.Visible = true;
 
             SetDGVColumnsSettings();
-            SetupCategoryComboBox();
+            //SetupCategoryComboBox();
 
         }
 
         private void InitializeDataGrid()
         {
             dgvMain.Rows.Clear();
-            SummaryOutlayDataGridItem.Clear();
+            SummaryOutlayDataGridItems.Clear();
 
             while (dgvMain.Columns.Count > 0)
             {
@@ -75,6 +85,10 @@ namespace TC_WinForms.WinForms.Win7
             foreach (var staff in _displayedObject.Where(s => s.Type == OutlayType.Staff).Select(x => x.Name).Distinct())
             {
                 var staffSymbol = staff.Split(" ")[0];
+
+                if (dgvMain.Columns.Contains($"Staff{staffSymbol}"))
+                    continue;
+
                 dgvMain.Columns.Add($"Staff{staffSymbol}", $"{staffSymbol}");
             }
 
@@ -97,24 +111,112 @@ namespace TC_WinForms.WinForms.Win7
                 var tcId = outlay.Key;
                 var outlayData = outlay.ToList();
 
-                SummaryOutlayDataGridItem.Add (new SummaryOutlayDataGridItem
+                var machineList = outlayData.Where(x => x.Type == OutlayType.Mechine).ToList();
+                List<(string MachineName, double MachineOutlay)> listMachStr = new List<(string MachineName, double MachineOutlay)>();
+
+                foreach (var machine in machineList)
+                {
+                    listMachStr.Add((machine.Name, machine.OutlayValue));
+                }
+
+                var staffList = outlayData.Where(x => x.Type == OutlayType.Staff).ToList();
+                List<(string StaffName, double StaffOutlay)> listStaffStr = new List<(string StaffName, double StaffOutlay)>();
+
+                foreach (var staff in staffList)
+                {
+                    listStaffStr.Add((staff.Name.Split(" ")[0], staff.OutlayValue));
+                }
+
+                SummaryOutlayDataGridItems.Add (new SummaryOutlayDataGridItem
                 {
                     TcId = tcId,
-                    TcName = techOperationWork,
-                    TechOperation = $"№{techOperationWork.Order} {techOperationWork.techOperation.Name}",
-                    IdTO = techOperationWork.techOperation.Id
+                    TcName = string.Empty,
+                    listStaffStr = listStaffStr,
+                    listMachStr = listMachStr,
+                    ComponentOutlay = outlayData.Where(s => s.Type == OutlayType.Components).Select(s => s.OutlayValue).First(),
+                    SummaryOutlay = outlayData.Where(s => s.Type == OutlayType.SummaryTimeOutlay).Select(s => s.OutlayValue).First(),
                 });
             }
+
+            using (MyDbContext context = new MyDbContext())
+            {
+                SummaryOutlayDataGridItems.ForEach
+                    (
+                        x => 
+                        {
+                            var techCard = context.TechnologicalCards.Where(t => t.Id == x.TcId).FirstOrDefault();
+                            if (techCard != null)
+                                x.TcName = techCard.Article;
+                        }
+                    );
+            }
+
+            AddRowsToGrid();
         }
         public async Task LoadDataAsync()
         {
-            _displayedObject = await Task.Run(() => dbCon.GetObjectList<Outlay>());
+            try
+            {
+                using (MyDbContext context = new MyDbContext())
+                {
+                    _displayedObject = await Task.Run(() => dbCon.GetObjectList<Outlay>());
+                }
+            }
+            catch (Exception ex) { }
+        }
+        private void AddRowsToGrid()
+        {
+            int rowCount = 0;
+            foreach (var summaryOutlayDataGridItem in SummaryOutlayDataGridItems)
+            {
+                dgvMain.Rows.Add();
 
-            paginationService = new PaginationControlService<SummaryOutlayDataGridItem>(40, _displayedObjects);
+                dgvMain.Rows[rowCount].Cells["TcName"].Value = summaryOutlayDataGridItem.TcName;
+                dgvMain.Rows[rowCount].Cells["ComponentOutlay"].Value = summaryOutlayDataGridItem.ComponentOutlay;
+                dgvMain.Rows[rowCount].Cells["SummaryOutlay"].Value = summaryOutlayDataGridItem.SummaryOutlay;
 
-            FilteringObjects();
+                foreach(DataGridViewColumn column in dgvMain.Columns)
+                {
+                    foreach(var staff in summaryOutlayDataGridItem.listStaffStr)
+                    {
+                        if (column.Name.Contains(staff.StaffName))
+                        {
+                            var value = dgvMain.Rows[rowCount].Cells[column.Index].Value == null || dgvMain.Rows[rowCount].Cells[column.Index].Value == " - "
+                                ? 0 
+                                : (double)dgvMain.Rows[rowCount].Cells[column.Index].Value;
+                            dgvMain.Rows[rowCount].Cells[column.Index].Value = value + staff.StaffOutlay;
+                        }
+                    }
 
-            _isDataLoaded = true;
+                    foreach (var machine in summaryOutlayDataGridItem.listMachStr)
+                    {
+                        if (column.Name.Contains(machine.MachineName))
+                        {
+                            dgvMain.Rows[rowCount].Cells[column.Index].Value = machine.MachineOutlay;
+                        }
+                    }
+
+                    if (dgvMain.Rows[rowCount].Cells[column.Index].Value == null)
+                    {
+                        dgvMain.Rows[rowCount].Cells[column.Index].Value = " - ";
+                    }
+
+                }
+
+                rowCount++;
+            }
+        }
+        void SetDGVColumnsSettings()
+        {
+            // автоподбор ширины столбцов под ширину таблицы
+            dgvMain.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            //dgvMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
+            dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvMain.RowHeadersWidth = 25;
+
+            //// автоперенос в ячейках
+            dgvMain.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+
         }
     }
 }

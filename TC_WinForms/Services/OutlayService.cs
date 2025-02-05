@@ -81,7 +81,7 @@ namespace TC_WinForms.Services
         {
             if (newRecord.OutlayValue != oldRecord.OutlayValue)
             {
-                context.OutlaysTable.Where(u => u.ID == oldRecord.ID)
+                context.OutlaysTable.Where(u => u.Id == oldRecord.Id)
                                                        .ExecuteUpdate(b => b.SetProperty(u => u.OutlayValue, newRecord.OutlayValue));
             }
         }

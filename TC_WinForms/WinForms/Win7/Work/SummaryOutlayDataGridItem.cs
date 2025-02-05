@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TcModels.Models.TcContent;
 using static TcModels.Models.TcContent.Outlay;
 
 namespace TC_WinForms.WinForms.Win7.Work
 {
-    internal class SummaryOutlayDataGridItem
+    public class SummaryOutlayDataGridItem
     {
         public int TcId {  get; set; }
         public string TcName { get; set; }
@@ -17,7 +18,8 @@ namespace TC_WinForms.WinForms.Win7.Work
 
         public double ComponentOutlay {  get; set; }
         public double SummaryOutlay {  get; set; }
-        public UnitType UnitType { get; set; }
+        //public UnitType UnitType { get; set; }
+
 
         //ТК имя
         //Стафф

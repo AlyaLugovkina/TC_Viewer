@@ -5,6 +5,7 @@ using TC_WinForms.DataProcessing;
 using TC_WinForms.Extensions;
 using TC_WinForms.Interfaces;
 using TC_WinForms.Services;
+using TC_WinForms.WinForms.Win7;
 using TcDbConnector;
 using TcModels.Models;
 using TcModels.Models.Interfaces;
@@ -61,11 +62,11 @@ namespace TC_WinForms.WinForms
         {
             var controlAccess = new Dictionary<User.Role, Action>
             {
-                [User.Role.Lead] = () => 
-                { 
+                [User.Role.Lead] = () =>
+                {
                     _currentWinNumber = WinNumber.TC;
-					blockServiceToolStripButton.Visible = true;
-				},
+                    blockServiceToolStripButton.Visible = true;
+                },
 
                 [User.Role.Implementer] = () => { _currentWinNumber = WinNumber.TC; },
 
@@ -185,7 +186,7 @@ namespace TC_WinForms.WinForms
 
         private void SetPaginationBar(Form? form)
         {
-            if (form is IPaginationControl paginationForm )
+            if (form is IPaginationControl paginationForm)
             {
                 paginationForm.RaisePageInfoChanged();
 
@@ -249,6 +250,8 @@ namespace TC_WinForms.WinForms
                     return new Win7_TechTransition(_accessLevel);
                 case WinNumber.Project:
                     return new Win7_Process(_accessLevel);
+                case WinNumber.SummaryOutlay:
+                    return new Win7_SummaryOutlay(_accessLevel);
                 default:
                     return null;
             }
@@ -374,7 +377,7 @@ namespace TC_WinForms.WinForms
         private async void toolStripButton5_Click(object sender, EventArgs e)
         {
             _logger.Information("Вызвано сохранение данных");
-			await Save();
+            await Save();
         }
 
         // Методы нигде не используются
@@ -413,24 +416,24 @@ namespace TC_WinForms.WinForms
 
         public void blockServiceToolStripButton_Click(object sender, EventArgs e)
         {
-			_logger.Information("Вызвано открытие окна блокировок");
+            _logger.Information("Вызвано открытие окна блокировок");
 
-			var openedForm = CheckOpenFormService.FindOpenedForm<Win7_BLockService>();
+            var openedForm = CheckOpenFormService.FindOpenedForm<Win7_BLockService>();
 
-			if (openedForm != null)
-			{
-				openedForm.BringToFront();
-				return;
-			}
+            if (openedForm != null)
+            {
+                openedForm.BringToFront();
+                return;
+            }
             else
-			{
-				var lockerForm = new Win7_BLockService(_accessLevel);
-				lockerForm.Show();
-			}
+            {
+                var lockerForm = new Win7_BLockService(_accessLevel);
+                lockerForm.Show();
+            }
         }
         public async void updateToolStripButton_Click(object sender, EventArgs e)
         {
-            _logger.Information("Вызвано обновление данных из формы {CurrentWinNumber}", 
+            _logger.Information("Вызвано обновление данных из формы {CurrentWinNumber}",
                 _currentWinNumber);
 
             bool next = true;
@@ -533,6 +536,12 @@ namespace TC_WinForms.WinForms
             MessageBox.Show(ApplicationInfoService.GetApplicationInfo(), "О программе");
         }
 
+        private async void btnSummaryOutlay_Click(object sender, EventArgs e)
+        {
+            _logger.LogUserAction("Открытие формы Технологические Переходы");
+            await LoadFormInPanel(WinNumber.SummaryOutlay).ConfigureAwait(false);
+        }
+
         enum WinNumber
         {
             TC = 1,
@@ -545,7 +554,7 @@ namespace TC_WinForms.WinForms
 
             TechOperation = 8,
             TechTransition = 9,
-
+            SummaryOutlay = 10,
             //Process = 10
         }
 
