@@ -288,7 +288,7 @@ namespace TcDbConnector.Migrations
                         .HasColumnType("double")
                         .HasDefaultValue(0.0);
 
-                    b.Property<bool>("IsInOutlayCount")
+                    b.Property<bool>("IsInOutlay")
                         .HasColumnType("tinyint(1)");
 
                     b.HasKey("ParentId", "ChildId");
@@ -368,7 +368,7 @@ namespace TcDbConnector.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(0);
 
-                    b.Property<bool>("IsInOutlayCount")
+                    b.Property<bool>("IsInOutlay")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<int>("ParentId")

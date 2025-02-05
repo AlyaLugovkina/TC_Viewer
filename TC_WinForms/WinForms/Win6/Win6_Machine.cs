@@ -63,7 +63,7 @@ namespace TC_WinForms.WinForms
                 var machineId = (int)dgvMain.Rows[e.RowIndex].Cells[1].Value;
                 var updatedMachine = _tcViewState.TechnologicalCard.Machine_TCs.Where(m => m.ChildId == machineId).FirstOrDefault();
 
-                updatedMachine.IsInOutlayCount = isCountInOutlay;
+                updatedMachine.IsInOutlay = isCountInOutlay;
             }
         }
 
@@ -127,7 +127,7 @@ namespace TC_WinForms.WinForms
         {
             var baseList = base.GetEditableColumns();
 
-            baseList.Add(nameof(Machine_TC.IsInOutlayCount));
+            baseList.Add(nameof(Machine_TC.IsInOutlay));
             return baseList;
         }
 
@@ -140,13 +140,13 @@ namespace TC_WinForms.WinForms
             // make columns editable
             //DgvMain.Columns[nameof(BaseDisplayedEntity.Formula)].ReadOnly = _tcViewState.IsViewMode;
             DgvMain.Columns[nameof(BaseDisplayedEntity.Note)].ReadOnly = _tcViewState.IsViewMode;
-            DgvMain.Columns[nameof(Machine_TC.IsInOutlayCount)].ReadOnly = _tcViewState.IsViewMode;
+            DgvMain.Columns[nameof(Machine_TC.IsInOutlay)].ReadOnly = _tcViewState.IsViewMode;
 
 
             DgvMain.Columns[nameof(BaseDisplayedEntity.Formula)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
             DgvMain.Columns[nameof(BaseDisplayedEntity.Quantity)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
             DgvMain.Columns[nameof(BaseDisplayedEntity.Note)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
-            DgvMain.Columns[nameof(Machine_TC.IsInOutlayCount)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
+            DgvMain.Columns[nameof(Machine_TC.IsInOutlay)].DefaultCellStyle.BackColor = _tcViewState.IsViewMode ? Color.White : Color.LightGray;
 
             UpdateDynamicCardParametrs();
 

@@ -6,7 +6,7 @@ using static TcModels.Models.TcContent.Outlay;
 
 namespace TC_WinForms.Services
 {
-    public class CalculateOutlayService
+    public class OutlayService
     {
         enum GroupType
         {
@@ -17,7 +17,7 @@ namespace TC_WinForms.Services
 
         private List<Outlay> _outlayList = new List<Outlay>();
 
-        public CalculateOutlayService() { }
+        public OutlayService() { }
 
         /// <summary>
         /// Рассчитывает затраты на основе актуальных данных из Технологической карты
@@ -36,7 +36,7 @@ namespace TC_WinForms.Services
         /// Рассчитывает затраты на основе актуальных данных из Технологической карты и сохраняет в БД новые данные, если такие имеются.
         /// </summary>
         /// <param name="tcViewState">Объект класса TcViewState, хранящий в себе актуальыне данные ТК, которые могут быть не сохранены пользователем.</param>
-        public void TryRewriteOutlay(TcViewState tcViewState)
+        public void UpdateOutlay(TcViewState tcViewState)
         {
             CalculateTechCardOutlay(tcViewState);
 
@@ -174,7 +174,7 @@ namespace TC_WinForms.Services
         private void CalculateStaffOutlay(TcViewState tcViewState)
         {
             double staffOutlay = 0;
-            foreach (var staff in tcViewState.TechnologicalCard.Staff_TCs.Where(s =>  s.IsInOutlayCount).ToList())
+            foreach (var staff in tcViewState.TechnologicalCard.Staff_TCs.Where(s =>  s.IsInOutlay).ToList())
             {
                 foreach (var ew in staff.ExecutionWorks)
                 {
@@ -211,7 +211,7 @@ namespace TC_WinForms.Services
         private void CalculateMachineOutlay(TcViewState tcViewState)
         {
             double machineOutlay = 0;
-            foreach (var machine in tcViewState.TechnologicalCard.Machine_TCs.Where(s => s.IsInOutlayCount).ToList())
+            foreach (var machine in tcViewState.TechnologicalCard.Machine_TCs.Where(s => s.IsInOutlay).ToList())
             {
                 machineOutlay = machine.ExecutionWorks == null|| machine.ExecutionWorks.Count == 0
                     ? 1
